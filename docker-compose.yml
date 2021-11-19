@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+    postgres:
+        image: postgres
+        container_name: postgres-es
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: docker
+            POSTGRES_DATABASE: expense-system-db
+        ports:
+            - '5432:5432'
+        restart: unless-stopped
+
+    # app:
+    #     container_name: expense-system-backend
+    #     build:
+    #         dockerfile: Dockerfile
+    #         context: .
+    #     environment:
+    #         DATABASE_URL: 'postgresql://postgres:docker@postgres:5432/expense-system-db?schema=public'
+    #         SECRET: 'nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgVI1/pu33m7htijMQgVOdyH8xmCxXk34vwuuJ6P5pJxff9xx5smkN78KB9cS1E4vGzM+ABNQSwHnS7eQMdO6F85hXcNoWhtU3+r+VjXiTJ9p8vl8W4YPfon+wv45nXvXy2wl5U6vt1MVRVf0Ex4kqgXdZP8m6IsG8ggxSuYHxwBGtFrXUPitoUxw3qmErbpyUCXACSzbxTF6SSr8SRbZ71/MrCeA7uupD04i9S82ymdYxI4Re8aEDKvHu3OLVgtgfUFsIwDOM/VKD5u0NmVE1tlQwKuKNInZzua7iSBe4NqVi3pn88PS6YJe0sKDmM1QB+PD5f3Oy2dCeC4I2ZUDJwIDAQAB'
+    #     ports:
+    #         - '3000:3000'
+    #         - '5555:5555'
+    #     depends_on:
+    #         - postgres
