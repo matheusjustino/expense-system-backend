@@ -1,3 +1,4 @@
+import './app-config/env.config';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import * as helmet from 'helmet';
