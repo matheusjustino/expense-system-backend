@@ -11,7 +11,7 @@ import { HttpExceptionFilter } from './app-config/filters/http-exception.filter'
 
 async function bootstrap(): Promise<void> {
 	const logger = new Logger('Bootstrap');
-	const PORT = process.env.API_PORT || 8080;
+	const PORT = process.env.PORT || 8080;
 	const app = await NestFactory.create(AppModule);
 
 	app.enableCors();
