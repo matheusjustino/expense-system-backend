@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
 // ENTITIES
-import { AccountPost, User } from '@prisma/client';
+import { AccountPost } from '@prisma/client';
+
+// UTILS
 import { MonthsValues } from 'src/utils/months.utils';
 
 // SERVICES
@@ -12,6 +14,7 @@ import { CreateAccountPostDto } from './dto/create-account-post.dto';
 
 // INTERFACES
 import { FindAccountPostQuery } from './interfaces/find-account-post-query.interface';
+import { FindAccountPostResponse } from './interfaces/find-account-post-response.interface';
 
 @Injectable()
 export class AccountPostService {
@@ -49,40 +52,57 @@ export class AccountPostService {
 		return await this.prismaService.accountPost.findMany();
 	}
 
-	public async find(query: FindAccountPostQuery): Promise<AccountPost[]> {
-		const daysInMonth = new Date(query.year, query.month, 0).getDate();
+	public async find(
+		userId: string,
+		query: FindAccountPostQuery,
+	): Promise<FindAccountPostResponse[]> {
+		const daysInMonth = this.getDaysInMonth(query.year, query.month);
 
 		const result = await this.prismaService.accountPost.findMany({
 			where: {
+				owner: {
+					id: userId,
+				},
 				date: {
 					gte: new Date(`${query.year}-${query.month}-01 00:00`),
 					lt: new Date(
 						`${query.year}-${query.month}-${daysInMonth} 23:59:59`,
 					),
 				},
-				frequency: query.frequency,
+				type: query.type,
+				frequency: {
+					in: query.frequency,
+				},
 			},
 		});
-		return result;
+		return this.mapAccountPostRegister(result);
 	}
 
-	public async getDashboard(query: FindAccountPostQuery) {
-		const daysInMonth = new Date(query.year, query.month, 0).getDate();
+	public async getDashboard(userId: string, query: FindAccountPostQuery) {
+		const daysInMonth = this.getDaysInMonth(query.year, query.month);
 
 		const [monthResult, yearResult] = await Promise.all([
 			this.prismaService.accountPost.findMany({
 				where: {
+					owner: {
+						id: userId,
+					},
 					date: {
 						gte: new Date(`${query.year}-${query.month}-01 00:00`),
 						lt: new Date(
 							`${query.year}-${query.month}-${daysInMonth} 23:59:59`,
 						),
 					},
-					frequency: query.frequency,
+					frequency: {
+						in: query.frequency,
+					},
 				},
 			}),
 			this.prismaService.accountPost.findMany({
 				where: {
+					owner: {
+						id: userId,
+					},
 					date: {
 						gte: new Date(`${query.year}-01-01 00:00`),
 						lte: new Date(`${query.year}-12-31 23:59:59`),
@@ -246,5 +266,25 @@ export class AccountPostService {
 				eventualPercent: expensesEventualPercent,
 			},
 		};
+	}
+
+	private getDaysInMonth(year: number, month: number): number {
+		return new Date(year, month, 0).getDate();
+	}
+
+	private mapAccountPostRegister(
+		accountRegisters: AccountPost[],
+	): FindAccountPostResponse[] {
+		return accountRegisters.map((accountPost) => {
+			const accountPostMapped = {
+				amount: accountPost.amount,
+				date: accountPost.date,
+				frequency: accountPost.frequency,
+				description: accountPost.description,
+				type: accountPost.type,
+				id: accountPost.id,
+			};
+			return accountPostMapped;
+		});
 	}
 }

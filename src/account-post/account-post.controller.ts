@@ -9,9 +9,11 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { UserRequest } from 'src/auth/interfaces/user-request.interface';
 
 // GUARDS
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { User } from 'src/decorators/user.decorator';
 
 // SERVICES
 import { AccountPostService } from './account-post.service';
@@ -40,8 +42,9 @@ export class AccountPostController {
 	public async find(
 		@Query() query: FindAccountPostQuery,
 		@Res() res: Response,
+		@User() user: UserRequest,
 	) {
-		const result = await this.accountPostService.find(query);
+		const result = await this.accountPostService.find(user.id, query);
 		return res.status(HttpStatus.OK).json(result);
 	}
 
@@ -55,8 +58,12 @@ export class AccountPostController {
 	public async getDashboard(
 		@Query() query: FindAccountPostQuery,
 		@Res() res: Response,
+		@User() user: UserRequest,
 	) {
-		const result = await this.accountPostService.getDashboard(query);
+		const result = await this.accountPostService.getDashboard(
+			user.id,
+			query,
+		);
 		return res.status(HttpStatus.OK).json(result);
 	}
 }

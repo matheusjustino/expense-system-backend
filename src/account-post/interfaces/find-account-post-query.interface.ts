@@ -1,7 +1,8 @@
-import { AccountPostFrequency } from '@prisma/client';
+import { AccountPostType, AccountPostFrequency } from '@prisma/client';
 
 export interface FindAccountPostQuery {
 	month: number;
 	year: number;
-	frequency?: AccountPostFrequency;
+	type?: AccountPostType;
+	frequency?: AccountPostFrequency[];
 }

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	Logger,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 
@@ -16,6 +21,13 @@ import { LoginDto } from './dto/login.dto';
 import { IAuthService } from './interfaces/auth-service.interface';
 import { AccountInfo } from './interfaces/account-info.interface';
 import { LoginResponse } from './interfaces/login-response.interface';
+
+export interface JWTValidatePayload {
+	id: string;
+	email: string;
+	firstName: string;
+	iat: number;
+}
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -88,6 +100,22 @@ export class AuthService implements IAuthService {
 	public async listUsers(): Promise<User[]> {
 		const users = await this.prismaService.user.findMany();
 		return users;
+	}
+
+	public async validateToken(token: string): Promise<JWTValidatePayload> {
+		const payload: JWTValidatePayload = await this.jwtService.verifyAsync(
+			token,
+		);
+
+		const user = await this.prismaService.user.findFirst({
+			where: { id: payload.id, email: payload.email },
+		});
+
+		if (!user) {
+			throw new UnauthorizedException('Usuário inválido');
+		}
+
+		return payload;
 	}
 
 	public comparePassword(password: string, hash: string): Promise<boolean> {
