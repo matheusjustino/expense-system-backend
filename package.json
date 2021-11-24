@@ -8,7 +8,7 @@
 	"scripts": {
 		"prebuild": "rimraf dist",
 		"seed": "ts-node prisma/seed.ts",
-		"build": "prisma migrate deploy && nest build",
+		"build": "nest build",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
 		"start": "nest start",
 		"start:dev": "nest start --watch",
